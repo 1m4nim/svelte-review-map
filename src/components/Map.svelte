@@ -5,7 +5,7 @@
 
   let map;
   let markers = [];
-  let keyword = 'restaurant'; // 初期値はrestaurant（飲食店）
+  let keyword ='' ; // 初期値はrestaurant（飲食店）
 
   // マーカーを地図から一括削除
   function clearMarkers() {
