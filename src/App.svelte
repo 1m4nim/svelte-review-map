@@ -1,40 +1,21 @@
 <script>
   import Map from './components/Map.svelte';
-  import ReviewModal from './components/ReviewForm.svelte';
-  import { writable } from 'svelte/store';
-
-  const selectedPlace = writable(null);
-
-  function closeModal() {
-    selectedPlace.set(null);
-  }
+  import ReviewForm from './components/ReviewForm.svelte';
 </script>
+
+<main>
+  <h1>📍 レビュー地図アプリ</h1>
+  <ReviewForm />
+  <Map />
+</main>
 
 <style>
   main {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+    padding: 1rem;
+    font-family: sans-serif;
   }
-  header {
-    padding: 0.5rem;
-    background: #0288d1;
-    color: white;
-    font-weight: bold;
+
+  h1 {
     text-align: center;
   }
-  section {
-    flex: 1;
-  }
 </style>
-
-<main>
-  <header>店舗レビュー地図</header>
-  <section>
-    <Map {selectedPlace} />
-  </section>
-
-  {#if $selectedPlace}
-    <ReviewModal {selectedPlace} on:close={closeModal} />
-  {/if}
-</main>

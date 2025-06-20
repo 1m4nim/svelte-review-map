@@ -3,55 +3,76 @@
   import L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
 
-  export let selectedPlace;
-
   let map;
+  let markers = [];
+  let keyword = 'restaurant'; // 初期値はrestaurant（飲食店）
 
-  const places = [
-    {
-      id: 1,
-      name: 'カフェ 花鳥風月',
-      lat: 35.681236,
-      lng: 139.767125,
-      reviews: []
-    },
-    {
-      id: 2,
-      name: '寿司 まる太',
-      lat: 35.689634,
-      lng: 139.692101,
-      reviews: []
-    },
-    {
-      id: 3,
-      name: 'ラーメン 一番星',
-      lat: 35.69384,
-      lng: 139.703549,
-      reviews: []
+  // マーカーを地図から一括削除
+  function clearMarkers() {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+  }
+
+  async function loadPlaces() {
+    clearMarkers();
+
+    // キーワードが空なら処理しない
+    if (!keyword.trim()) {
+      return;
     }
-  ];
+
+    // Overpass QL クエリ作成
+    const query = `
+      [out:json];
+      node
+        ["name"~"${keyword}", i]
+        (35.675,139.75,35.685,139.77);
+      out;
+    `;
+    const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+
+      json.elements.forEach(el => {
+        if (el.lat && el.lon) {
+          const name = el.tags?.name || "無名の施設";
+          const m = L.marker([el.lat, el.lon])
+            .addTo(map)
+            .bindPopup(`<b>${name}</b>`);
+          markers.push(m);
+        }
+      });
+    } catch (e) {
+      alert('検索エラーが発生しました');
+      console.error(e);
+    }
+  }
 
   onMount(() => {
-    map = L.map('map').setView([35.68, 139.76], 13);
+    map = L.map('map').setView([35.68, 139.76], 15);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    places.forEach(place => {
-      const marker = L.marker([place.lat, place.lng]).addTo(map);
-      marker.on('click', () => {
-        selectedPlace.set(place);
-      });
-    });
+    loadPlaces();
   });
 </script>
 
 <style>
   #map {
-    height: 100%;
-    width: 100%;
+    height: 500px;
+  }
+  form {
+    margin-bottom: 0.5rem;
   }
 </style>
+
+<form on:submit|preventDefault={loadPlaces}>
+  <input type="text" bind:value={keyword} placeholder="検索キーワード（例: スターバックス）" />
+  <button type="submit">検索</button>
+</form>
 
 <div id="map"></div>
