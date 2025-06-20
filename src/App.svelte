@@ -1,6 +1,6 @@
 <script>
   import Map from './components/Map.svelte';
-  import ReviewModal from './components/ReviewModal.svelte';
+  import ReviewModal from './components/ReviewForm.svelte';
   import { writable } from 'svelte/store';
 
   const selectedPlace = writable(null);
