@@ -5,10 +5,9 @@
 
   let map;
   let markers = [];
-  let keyword = '';       // 検索キーワード
-  let storeName = '';     // クリックしたマーカーの店舗名を保持
+  let keyword = '';
+  let storeName = '';
 
-  // レビュー用フォームデータ
   let name = '';
   let rating = 3;
   let review = '';
@@ -25,9 +24,7 @@
 
     const query = `
       [out:json];
-      node
-        ["name"~"${keyword}", i]
-        (35.675,139.75,35.685,139.77);
+      node["name"~"${keyword}", i](35.675,139.75,35.685,139.77);
       out;
     `;
     const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
@@ -74,7 +71,6 @@
 
   onMount(() => {
     map = L.map('map').setView([35.681236, 139.767125], 15);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
@@ -82,17 +78,30 @@
 </script>
 
 <style>
-  #map {
-    height: 500px;
-    width: 100%;
-    margin-top: 1rem;
+  html, body {
+    height: 100%;
+    width:100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
+  .container {
+  width: 100%;       
+  max-width: 800px;  
+  padding: 1rem;
+  margin: 2rem 0; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+
   form {
+    width: 100%;
     margin-bottom: 2rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   form label {
@@ -119,56 +128,66 @@
   h2 {
     margin-top: 2rem;
   }
+
+  #map {
+    height: 500px;
+    width: 100%;
+    margin-top: 1rem;
+  }
 </style>
 
-<!-- 検索フォーム -->
-<form on:submit|preventDefault={loadPlaces}>
-  <label for="keyword">検索キーワード</label>
-  <input
-    id="keyword"
-    type="text"
-    bind:value={keyword}
-    placeholder="例: スターバックス、セブンイレブン"
-  />
-  <button type="submit">検索</button>
-</form>
+<!-- 全体を囲む中央寄せコンテナ -->
+<div class="container">
 
-<!-- 店舗名表示フォーム -->
-<form>
-  <label for="storeName">店舗名</label>
-  <input
-    id="storeName"
-    type="text"
-    bind:value={storeName}
-    placeholder="マーカーをクリックするとここに表示されます"
-    readonly
-  />
-</form>
+  <!-- 検索フォーム -->
+  <form on:submit|preventDefault={loadPlaces}>
+    <label for="keyword">検索キーワード</label>
+    <input
+      id="keyword"
+      type="text"
+      bind:value={keyword}
+      placeholder="例: スターバックス、セブンイレブン"
+    />
+    <button type="submit">検索</button>
+  </form>
 
-<!-- レビュー投稿フォーム -->
-<form on:submit|preventDefault={submitReview}>
-  <h2>新しいレビューを投稿</h2>
+  <!-- 店舗名表示 -->
+  <form>
+    <label for="storeName">店舗名</label>
+    <input
+      id="storeName"
+      type="text"
+      bind:value={storeName}
+      placeholder="マーカーをクリックするとここに表示されます"
+      readonly
+    />
+  </form>
 
-  <label for="rating">評価（1〜5）</label>
-  <input
-    id="rating"
-    type="number"
-    min="1"
-    max="5"
-    bind:value={rating}
-    required
-  />
+  <!-- レビュー投稿フォーム -->
+  <form on:submit|preventDefault={submitReview}>
+    <h2>新しいレビューを投稿</h2>
 
-  <label for="review">コメント</label>
-  <textarea
-    id="review"
-    bind:value={review}
-    rows="4"
-    placeholder="レビューを記入してください"
-  ></textarea>
+    <label for="rating">評価（1〜5）</label>
+    <input
+      id="rating"
+      type="number"
+      min="1"
+      max="5"
+      bind:value={rating}
+      required
+    />
 
-  <button type="submit">投稿する</button>
-</form>
+    <label for="review">コメント</label>
+    <textarea
+      id="review"
+      bind:value={review}
+      rows="4"
+      placeholder="レビューを記入してください"
+    ></textarea>
 
-<!-- 地図表示 -->
-<div id="map"></div>
+    <button type="submit">投稿する</button>
+  </form>
+
+  <!-- 地図 -->
+  <div id="map"></div>
+</div>
