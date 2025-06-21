@@ -13,13 +13,11 @@
   let rating = 3;
   let review = '';
 
-  // 既存マーカーを地図から削除
   function clearMarkers() {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
   }
 
-  // 検索してマーカー表示＆クリックでstoreName更新
   async function loadPlaces() {
     clearMarkers();
 
@@ -36,10 +34,7 @@
 
     try {
       const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`Overpass API Error: ${res.status}`);
-      }
-
+      if (!res.ok) throw new Error(`Overpass API Error: ${res.status}`);
       const json = await res.json();
 
       json.elements.forEach(el => {
@@ -49,10 +44,9 @@
             .addTo(map)
             .bindPopup(`<b>${nameTag}</b>`);
 
-          // クリック時に店舗名をセット
           m.on('click', async () => {
             storeName = nameTag;
-            name = nameTag;    // レビュー投稿用フォームの店舗名も連動
+            name = nameTag;
             await tick();
           });
 
@@ -70,11 +64,8 @@
     }
   }
 
-  // レビュー投稿時の処理（ダミー）
   function submitReview() {
     alert(`${name} の評価は ${rating} 点です\nコメント: ${review}`);
-
-    // フォームクリア
     storeName = '';
     name = '';
     rating = 3;
@@ -98,39 +89,55 @@
   }
 
   form {
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
   }
 
   input, textarea {
     padding: 0.5rem;
-    width: 60%;
+    width: 100%;
     font-size: 1rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
     box-sizing: border-box;
+    display: block;
   }
 
   button {
     padding: 0.5rem 1rem;
     font-size: 1rem;
-    margin-left: 0.5rem;
     cursor: pointer;
+  }
+
+  h2 {
+    margin-top: 2rem;
   }
 </style>
 
 <!-- 検索フォーム -->
 <form on:submit|preventDefault={loadPlaces}>
+  <label for="keyword">検索キーワード</label>
   <input
+    id="keyword"
     type="text"
     bind:value={keyword}
-    placeholder="検索キーワード（例: スターバックス、セブンイレブン）"
+    placeholder="例: スターバックス、セブンイレブン"
   />
   <button type="submit">検索</button>
 </form>
 
-<!-- 店舗名表示（読み取り専用） -->
+<!-- 店舗名表示フォーム -->
 <form>
-  <label>店舗名:</label>
+  <label for="storeName">店舗名</label>
   <input
+    id="storeName"
     type="text"
     bind:value={storeName}
     placeholder="マーカーをクリックするとここに表示されます"
@@ -140,19 +147,26 @@
 
 <!-- レビュー投稿フォーム -->
 <form on:submit|preventDefault={submitReview}>
-  
   <h2>新しいレビューを投稿</h2>
-  <br/>
-  <label>
-    評価（1〜5）:
-    <input type="number" min="1" max="5" bind:value={rating} required />
-  </label>
-  <br/>
-  <label>
-    コメント:
-    <textarea bind:value={review} rows="4" />
-  </label>
-  <br/>
+
+  <label for="rating">評価（1〜5）</label>
+  <input
+    id="rating"
+    type="number"
+    min="1"
+    max="5"
+    bind:value={rating}
+    required
+  />
+
+  <label for="review">コメント</label>
+  <textarea
+    id="review"
+    bind:value={review}
+    rows="4"
+    placeholder="レビューを記入してください"
+  ></textarea>
+
   <button type="submit">投稿する</button>
 </form>
 
